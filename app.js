@@ -14,15 +14,8 @@ import globalErrorHandler from "./controllers/errorController.js";
 const app = express();
 
 // 1). MIDDLEWARE
-// if (process.env.NODE_ENV === "development") {
-//   const morgan = (await import("morgan")).default;
-//   app.use(morgan("dev"));
-// }
-
-// ✅ Morgan logging in all environments
 const format = process.env.NODE_ENV === "development" ? "dev" : "combined"; // or 'tiny' if you want less verbosity
 app.use(morgan(format));
-console.log(`🧾 Morgan logging enabled (${format})`);
 
 // Your routes
 app.get("/", (req, res) => {

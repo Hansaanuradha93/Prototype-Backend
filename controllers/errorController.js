@@ -1,5 +1,3 @@
-import AppError from "../utils/appError.js";
-
 const sendErrorForDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
