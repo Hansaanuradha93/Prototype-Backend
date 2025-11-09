@@ -1,0 +1,109 @@
+# ===========================================
+# 🚀 Node.js Backend .gitignore (TrustAI Backend)
+# ===========================================
+
+# ------------------------
+# Environment & Secrets
+# ------------------------
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# ------------------------
+# Dependency directories
+# ------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+
+# ------------------------
+# Build & Output folders
+# ------------------------
+dist/
+build/
+coverage/
+.tmp/
+.cache/
+.out/
+logs/
+log/
+*.log
+
+# ------------------------
+# IDE & Editor files
+# ------------------------
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*.tmp
+Thumbs.db
+
+# ------------------------
+# System files
+# ------------------------
+*.bak
+*.old
+*.orig
+*.rej
+
+# ------------------------
+# Testing & Reports
+# ------------------------
+coverage/
+.nyc_output/
+jest-results.json
+test-results.xml
+
+# ------------------------
+# Debugging & Profiling
+# ------------------------
+*.pid
+*.seed
+*.pid.lock
+.ndb/
+
+# ------------------------
+# Linting & Formatting
+# ------------------------
+.eslintcache
+.prettierignore
+*.tsbuildinfo
+
+# ------------------------
+# Local Dev Tools
+# ------------------------
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ------------------------
+# Logs
+# ------------------------
+debug.log
+error.log
+app.log
+npm-debug.log*
+*.log
+
+# ------------------------
+# OS / Misc
+# ------------------------
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# ------------------------
+# Miscellaneous
+# ------------------------
+**/__pycache__/
+__snapshots__/
