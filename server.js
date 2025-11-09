@@ -1,7 +1,5 @@
+/* eslint-disable import/first */
 import dotenv from "dotenv";
-
-/// Require the app
-import app from "./app.js";
 
 /// Handle all uncaught exceptions
 process.on("uncaughtException", (err) => {
@@ -12,6 +10,9 @@ process.on("uncaughtException", (err) => {
 
 /// Path for application configuration
 dotenv.config();
+
+/// Require the app
+import app from "./app.js";
 
 const port = process.env.PORT || 8000;
 const server = app.listen(port, () => {
