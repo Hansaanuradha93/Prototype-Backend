@@ -1,28 +1,44 @@
 import fetch from "node-fetch";
-import { createClient } from "@supabase/supabase-js";
 
-// const supabase = createClient(
-//   process.env.SUPABASE_URL,
-//   process.env.SUPABASE_KEY
-// );
-
-// --- Proxy to FastAPI backend ---
+/// Loan Form Test (Proxy to Python Service)
 const loanApproval = async (req, res) => {
-  //   try {
-  //     const mode = req.query.variant || "xai";
-  //     const backendUrl = `${process.env.PYTHON_BACKEND_URL}/loan_form_test?variant=${mode}`;
-  //     const response = await fetch(backendUrl, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(req.body),
-  //     });
-  //     const result = await response.json();
-  //     res.json(result);
-  //   } catch (err) {
-  //     console.error(err);
-  //     res.status(500).json({ error: "Backend connection failed" });
-  //   }
-  res.status(200).json({ mode: "working" });
+  try {
+    /// Extract mode variant (xai | baseline)
+    const mode = req.query.variant || "xai";
+
+    /// Build Python backend URL
+    const backendUrl = `${process.env.PYTHON_BACKEND_URL}/loan_form_test?variant=${mode}`;
+    console.log(`🔁 Forwarding loan request → ${backendUrl}`);
+
+    /// Forward request body to Python FastAPI
+    const response = await fetch(backendUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(req.body),
+    });
+
+    /// Parse backend response
+    const data = await response.json();
+
+    /// Handle Python-side errors gracefully
+    if (!response.ok) {
+      console.error("⚠️ Python backend returned error:", data);
+      return res.status(response.status).json({
+        error: "Python service error",
+        details: data,
+      });
+    }
+
+    /// Log success and return same payload
+    console.log("✅ Loan prediction received:", data.prediction);
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error("❌ LoanFormTest Error:", err.message);
+    return res.status(500).json({
+      error: "Failed to connect to Python backend",
+      details: err.message,
+    });
+  }
 };
 
 export default loanApproval;
