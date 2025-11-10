@@ -22,9 +22,31 @@ app.get("/", (req, res) => {
   res.json({ message: "TrustAI backend is running!" });
 });
 
-app.use(express.json());
-app.use(cors({ origin: process.env.FRONTEND_URL || "*", credentials: true }));
+/// 2️⃣ CORS CONFIGURATION (LOCAL + PRODUCTION)
+/// --------------------------------------------------
+const allowedOrigins = [
+  "http://localhost:3000", // Local frontend
+  "https://xai-chatbot.vercel.app", // Production frontend
+];
 
+app.use(
+  cors({
+    origin(origin, callback) {
+      /// Allow requests with no origin (e.g., Postman, server-to-server)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`❌ CORS blocked for origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
+app.use(express.json());
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
@@ -35,9 +57,9 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/loan", loanRoutes);
 app.use("/api/v1/faq", faqRoutes);
 
-// app.use((req, res, next) => {
-//   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-// });
+app.use((req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
 
 /// 3). ERROR HANDLER MIDDLEWARE
 app.use(globalErrorHandler);
