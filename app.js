@@ -6,6 +6,7 @@ import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import loanRoutes from "./routes/loanRoutes.js";
 import faqRoutes from "./routes/faqRoutes.js";
+import surveyRoutes from "./routes/serveyRoutes.js";
 
 import AppError from "./utils/appError.js";
 import globalErrorHandler from "./controllers/errorController.js";
@@ -56,6 +57,7 @@ app.use((req, res, next) => {
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/loan", loanRoutes);
 app.use("/api/v1/faq", faqRoutes);
+app.use("/api/v1/survey", surveyRoutes);
 
 app.use((req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
