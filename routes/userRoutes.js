@@ -1,8 +1,17 @@
 import express from "express";
-import userMode from "../controllers/userController.js";
+import {
+  getAllUsers,
+  createUser,
+  getUserMode,
+  updateUserMode,
+} from "../controllers/userController.js";
 
 const router = express.Router();
 
-router.post("/mode", userMode);
+router.get("/", getAllUsers);
+router.post("/", createUser);
+
+router.get("/mode", getUserMode);
+router.post("/mode", updateUserMode);
 
 export default router;

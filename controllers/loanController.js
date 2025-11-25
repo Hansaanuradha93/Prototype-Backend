@@ -6,6 +6,8 @@ const loanApproval = async (req, res) => {
     /// Extract mode variant (xai | baseline)
     const mode = req.query.variant || "xai";
 
+    console.log("⚡️ Node mode: ", mode);
+
     /// Build Python backend URL
     const backendUrl = `${process.env.PYTHON_BACKEND_URL}/loan_form_test?variant=${mode}`;
     console.log(`🔁 Forwarding loan request → ${backendUrl}`);

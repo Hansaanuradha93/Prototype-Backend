@@ -1,16 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
 
-/// Load environment variables
 dotenv.config();
 
-/// Initialize Supabase
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-/// Admin users
 const ADMIN_EMAILS = ["hansaanuradha93@gmail.com"];
 
-/// Helper: Fetch user by email
+/* ------------------------------------------------------------------
+   Helper: Fetch user by email
+------------------------------------------------------------------ */
 async function getUserByEmail(email) {
   const { data, error } = await supabase
     .from("users")
@@ -19,17 +18,20 @@ async function getUserByEmail(email) {
     .single();
 
   if (error && error.code !== "PGRST116") {
-    console.error("⚠️ [Supabase Fetch Error]:", error.message);
+    console.error("⚠️ [Fetch Error]:", error.message);
     throw new Error("Database fetch failed");
   }
 
   return data;
 }
 
-/// Helper: Insert a new user with assigned mode
+/* ------------------------------------------------------------------
+   Helper: Create new user
+------------------------------------------------------------------ */
 async function createNewUser(email, role) {
   const mode = role === "user" ? (Math.random() < 0.5 ? "xai" : "baseline") : "xai";
-  console.log(`🆕 New user → Assigned mode: ${mode}`);
+
+  console.log(`🆕 Creating new user (${email}) → mode: ${mode}`);
 
   const { data, error } = await supabase
     .from("users")
@@ -38,51 +40,102 @@ async function createNewUser(email, role) {
     .single();
 
   if (error) {
-    console.error("❌ [Supabase Insert Error]:", error.message);
-    throw new Error("User allocation failed");
+    console.error("❌ Insert Error:", error.message);
+    throw new Error("User creation failed");
   }
 
-  console.log("✅ [User Mode] User record created successfully:", data);
   return data;
 }
 
-/// User Mode Allocation
-const userMode = async (req, res) => {
-  const { email } = req.body;
-
-  /// Validate request
-  if (!email || email.trim() === "") {
-    return res.status(400).json({ error: "Missing email field." });
-  }
-
-  const role = ADMIN_EMAILS.includes(email) ? "admin" : "user";
-  console.log(`👤 [User Mode] Checking user: ${email} (${role})`);
-
-  /// Ensure Supabase client
-  if (!supabase) {
-    return res.status(500).json({ error: "Supabase client not initialized properly." });
-  }
-
+/* ------------------------------------------------------------------
+   GET /api/v1/users → Fetch ALL users
+------------------------------------------------------------------ */
+const getAllUsers = async (req, res) => {
   try {
-    /// Step 1: Fetch existing user
-    const existing = await getUserByEmail(email);
+    const { data, error } = await supabase.from("users").select("email, role, mode");
 
-    if (existing) {
-      console.log("✅ Existing user found:", existing);
-      return res.status(200).json(existing);
-    }
+    if (error) throw error;
 
-    /// Step 2: Create new user record
-    const inserted = await createNewUser(email, role);
-    return res.status(201).json(inserted);
+    return res.status(200).json(data);
   } catch (err) {
-    /// Step 3: Handle unexpected server errors
-    console.error("❌ [User Mode Error]:", err.message);
-    return res.status(500).json({
-      error: "Unexpected server error while assigning user mode.",
-      details: process.env.NODE_ENV === "development" ? err.message : undefined,
-    });
+    console.error("❌ [Get Users Error]:", err.message);
+    return res.status(500).json({ error: "Failed to fetch users" });
   }
 };
 
-export default userMode;
+/* ------------------------------------------------------------------
+   POST /api/v1/users → Create user (if not exists)
+------------------------------------------------------------------ */
+const createUser = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ error: "Email is required" });
+
+  const role = ADMIN_EMAILS.includes(email) ? "admin" : "user";
+
+  try {
+    const existing = await getUserByEmail(email);
+
+    if (existing) {
+      return res.status(200).json(existing);
+    }
+
+    const created = await createNewUser(email, role);
+    return res.status(201).json(created);
+  } catch (err) {
+    console.error("❌ Create User Error:", err.message);
+    return res.status(500).json({ error: "Failed to create user" });
+  }
+};
+
+/* ------------------------------------------------------------------
+   GET /api/v1/users/mode?email=...
+------------------------------------------------------------------ */
+const getUserMode = async (req, res) => {
+  const { email } = req.query;
+
+  if (!email) return res.status(400).json({ error: "Email is required" });
+
+  try {
+    const user = await getUserByEmail(email);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.status(200).json({ email: user.email, mode: user.mode, role: user.role });
+  } catch (err) {
+    console.error("❌ Fetch User Mode Error:", err.message);
+    return res.status(500).json({ error: "Failed to fetch user mode" });
+  }
+};
+
+/* ------------------------------------------------------------------
+   POST /api/v1/users/mode → Update user mode
+------------------------------------------------------------------ */
+const updateUserMode = async (req, res) => {
+  const { email, mode } = req.body;
+
+  if (!email || !mode) return res.status(400).json({ error: "Email and mode are required" });
+
+  if (!["xai", "baseline"].includes(mode))
+    return res.status(400).json({ error: "Mode must be xai or baseline" });
+
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .update({ mode })
+      .eq("email", email)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return res.status(200).json({ success: true, updated: data });
+  } catch (err) {
+    console.error("❌ Update Mode Error:", err.message);
+    return res.status(500).json({ error: "Failed to update user mode" });
+  }
+};
+
+export { getAllUsers, createUser, getUserMode, updateUserMode };
