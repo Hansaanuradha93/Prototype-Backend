@@ -8,10 +8,7 @@ import {
 
 const router = express.Router();
 
-router.get("/", getAllUsers);
-router.post("/", createUser);
-
-router.get("/mode", getUserMode);
-router.post("/mode", updateUserMode);
+router.route("/").get(getAllUsers).post(createUser);
+router.route("/mode").get(getUserMode).post(updateUserMode);
 
 export default router;

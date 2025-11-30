@@ -1,8 +1,21 @@
 import express from "express";
-import { getMessagesByEmail } from "../controllers/messageController.js";
+import {
+  getAllMessages,
+  getMessagesByEmail,
+  createMessage,
+} from "../controllers/chatController.js";
 
 const router = express.Router();
 
-router.get("/messages", getMessagesByEmail);
+router.route("/").get(getAllMessages).post(createMessage);
+router.post("/", createMessage);
+
+router.get("/:email", getMessagesByEmail);
+
+// router
+//   .route('/:id')
+//   .get(getMessagesByEmail)
+//   .post(protect, updateUser)
+//   .delete(protect, restrictTo('admin', 'lead-guide'), deleteUser);
 
 export default router;
