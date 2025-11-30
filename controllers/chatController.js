@@ -58,19 +58,19 @@ const getAllMessages = async (req, res) => {
 };
 
 /* ------------------------------------------------------------------
-   GET /api/v1/chat/message?email= → Fetch messages by email
+   GET /api/v1/chat/{{email}}
 ------------------------------------------------------------------ */
 const getMessagesByEmail = async (req, res) => {
   try {
-    const { email } = req.params;
-    if (!email) {
+    const { id } = req.params;
+    if (!id) {
       return res.status(400).json({ error: "Missing user email" });
     }
 
     const { data, error } = await supabase
       .from("chat_history")
       .select("id, sender, message, context, prediction, survey_completed, timestamp")
-      .eq("user_email", email)
+      .eq("user_email", id)
       .order("timestamp", { ascending: true });
 
     if (error) {
@@ -85,4 +85,43 @@ const getMessagesByEmail = async (req, res) => {
   }
 };
 
-export { createMessage, getAllMessages, getMessagesByEmail };
+/* ------------------------------------------------------------------
+   Patch /api/v1/chat/{{id}}
+------------------------------------------------------------------ */
+const updateMessagesByID = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const payload = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: "Missing id parameter" });
+    }
+
+    if (!payload || typeof payload !== "object") {
+      return res.status(400).json({ error: "Invalid or empty payload" });
+    }
+
+    const { data, error } = await supabase
+      .from("chat_history")
+      .update(payload)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("❌ Supabase update error:", error.message);
+      return res.status(500).json({ error: "Failed to update chat history" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Record updated",
+      data,
+    });
+  } catch (err) {
+    console.error("❌ Server error:", err.message);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export { createMessage, getAllMessages, getMessagesByEmail, updateMessagesByID };
