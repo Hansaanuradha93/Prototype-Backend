@@ -5,7 +5,7 @@ dotenv.config();
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-const loanTrustSurvey = async (req, res) => {
+const createSurvey = async (req, res) => {
   try {
     const { user_email, variant, prediction, trust, feedback } = req.body || {};
 
@@ -65,4 +65,27 @@ const loanTrustSurvey = async (req, res) => {
   }
 };
 
-export default loanTrustSurvey;
+const getAllSurveys = async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("loan_trust_survey")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("❌ Supabase Error:", error.message);
+      return res.status(500).json({ error: "Failed to fetch survey records" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      count: data.length,
+      surveys: data,
+    });
+  } catch (err) {
+    console.error("❌ Server Error:", err.message);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export { createSurvey, getAllSurveys };

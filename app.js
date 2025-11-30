@@ -6,7 +6,7 @@ import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import loanRoutes from "./routes/loanRoutes.js";
 import faqRoutes from "./routes/faqRoutes.js";
-import surveyRoutes from "./routes/serveyRoutes.js";
+import surveyRoutes from "./routes/surveyRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 
 import AppError from "./utils/appError.js";
