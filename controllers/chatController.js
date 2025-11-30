@@ -10,27 +10,40 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 ------------------------------------------------------------------ */
 const createMessage = async (req, res) => {
   try {
-    const { email, sender, message, variant } = req.body;
+    const payload = req.body;
 
-    if (!email || !sender || !message) {
+    if (!payload.email || !payload.sender || !payload.message) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const { error } = await supabase.from("chat_history").insert({
-      user_email: email,
-      sender,
-      message,
-      variant,
-    });
+    const record = {
+      user_email: payload.email,
+      sender: payload.sender,
+      message: payload.message,
+      variant: payload.variant || "xai",
+      context: payload.context || "faq",
+      prediction: payload.prediction || null,
+      explanation_json: payload.explanation_json || null,
+      survey_completed: payload.survey_completed ?? false,
+    };
+
+    const { data, error } = await supabase
+      .from("chat_history")
+      .insert(record)
+      .select("id")
+      .single();
 
     if (error) {
       console.error("❌ Supabase Error:", error.message);
       return res.status(500).json({ error: "Failed to save chat message" });
     }
 
-    return res.status(201).json({ success: true });
+    return res.status(201).json({
+      success: true,
+      id: data.id,
+    });
   } catch (err) {
-    console.error("❌ saveChatMessage error:", err);
+    console.error("❌ createMessage Error:", err);
     return res.status(500).json({ error: "Server error" });
   }
 };

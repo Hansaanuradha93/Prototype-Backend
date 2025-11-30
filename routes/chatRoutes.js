@@ -13,10 +13,4 @@ router.route("/").post(createMessage);
 
 router.route("/:id").get(getMessagesByEmail).patch(updateMessagesByID);
 
-// router
-//   .route('/:id')
-//   .get(getMessagesByEmail)
-//   .post(protect, updateUser)
-//   .delete(protect, restrictTo('admin', 'lead-guide'), deleteUser);
-
 export default router;
