@@ -57,7 +57,7 @@ async function logFaqQuery(email, query) {
 }
 
 /// FAQ Handler
-const faqAnswer = async (req, res) => {
+const answerFAQ = async (req, res) => {
   const { query, userEmail } = req.body;
 
   /// Validate request body
@@ -92,4 +92,4 @@ const faqAnswer = async (req, res) => {
   }
 };
 
-export default faqAnswer;
+export default answerFAQ;

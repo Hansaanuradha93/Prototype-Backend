@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 
 /// Loan Form Test (Proxy to Python Service)
-const loanApproval = async (req, res) => {
+const getLoanApprovalDecision = async (req, res) => {
   try {
     /// Extract mode variant (xai | baseline)
     const mode = req.query.variant || "xai";
@@ -43,4 +43,4 @@ const loanApproval = async (req, res) => {
   }
 };
 
-export default loanApproval;
+export default getLoanApprovalDecision;

@@ -1,8 +1,8 @@
 import express from "express";
-import faqAnswer from "../controllers/faqController.js";
+import answerFAQ from "../controllers/faqController.js";
 
 const router = express.Router();
 
-router.post("/answer", faqAnswer);
+router.post("/answer", answerFAQ);
 
 export default router;
